@@ -515,6 +515,7 @@ export class MongoStorageAdapter implements StorageAdapter {
   }
 
   aggregate(className: string, schema: any, pipeline: any, readPreference: ?string) {
+    schema = convertParseSchemaToMongoSchema(schema);
     let isPointerField = false;
     pipeline = pipeline.map((stage) => {
       if (stage.$group && stage.$group._id) {
@@ -523,6 +524,10 @@ export class MongoStorageAdapter implements StorageAdapter {
           isPointerField = true;
           stage.$group._id = `$_p_${field}`;
         }
+      }
+      if (stage.$match) {
+        const matchTransform = transformWhere(className, stage.$match, schema);
+        stage.$match = matchTransform;
       }
       return stage;
     });
