@@ -523,10 +523,11 @@ export class MongoStorageAdapter implements StorageAdapter {
         if (schema.fields[field] && schema.fields[field].type === 'Pointer') {
           isPointerField = true;
           stage.$group._id = `$_p_${field}`;
-        } else if (stage.$match) {
-          const matchTransform = transformWhere(className, query, schema);
-          stage.$match = matchTransform;
         }
+      }
+      if (stage.$match) {
+        const matchTransform = transformWhere(className, stage.$match, schema);
+        stage.$match = matchTransform;
       }
       return stage;
     });
